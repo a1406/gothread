@@ -5,6 +5,7 @@ import (
 	"flag"
 	"time"
 	"./count_nonatomic"
+	"./count_atomic"	
 )
 
 func check(e error) {
@@ -21,6 +22,7 @@ var threaddone [MAX_THREAD]chan bool
 var thread_param [MAX_THREAD]uint64
 var goflag int = 0
 var duration int64
+var do_atomic bool
 
 func count_read_perf_test(i int) {
 	var j uint64 = 0
@@ -28,7 +30,11 @@ func count_read_perf_test(i int) {
 
 	for ; goflag == 0; {
 		for i := uint64(0); i < COUNT_READ_RUN; i++ {
-			j = j + count_nonatomic.Read_count()
+			if do_atomic {
+				j = j + count_atomic.Read_count()								
+			} else {
+				j = j + count_nonatomic.Read_count()
+			}
 		}
 		n_reads_local += COUNT_READ_RUN;
 	}
@@ -41,7 +47,11 @@ func count_update_perf_test(i int) {
 
 	for ; goflag == 0; {
 		for i := uint64(0); i < COUNT_UPDATE_RUN; i++ {
-			count_nonatomic.Inc_count()
+			if do_atomic {
+				count_atomic.Inc_count()
+			} else {
+				count_nonatomic.Inc_count()				
+			}
 		}
 		n_update_local += COUNT_READ_RUN;
 	}
@@ -89,6 +99,16 @@ func perftestrun(nreader, nupdater int) {
 	var tr float64 = float64(duration) * 1000000 * float64(nreader) / float64(n_reads)
 	var tu float64 = float64(duration) * 1000000 * float64(nupdater) / float64(n_updates)	
 	fmt.Printf("ns/read: %f  ns/update: %f\n", tr, tu)
+
+	var final_count uint64
+	if do_atomic {
+		final_count = count_atomic.Read_count();
+	} else {
+		final_count = count_nonatomic.Read_count();		
+	}
+	
+	fmt.Printf("atomic = %t, read count = %d[%f%%]\n", do_atomic, final_count,
+		float64(final_count) / float64(n_updates) * 100)
 //		float64(duration) * 1000000.0 * float64(nreader) / n_reads,
 //		duration * 1000000 * nupdater / n_updates)
 }
@@ -97,6 +117,7 @@ func main() {
 	n_read := flag.Int("r", 1, "num of read thread")
 	n_update := flag.Int("u", 1, "num of update thread")
 	n_duration := flag.Int64("s", 240, "sleep time")
+	flag.BoolVar(&do_atomic, "a", false, "do atomic")
 	flag.Parse()
 	duration = *n_duration
 
