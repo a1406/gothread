@@ -6,7 +6,8 @@ import (
 	"time"
 	"./node"
 	"./nonlock_list"
-	"./lock_list"	
+	"./lock_list"
+	"./lockh_list"		
 )
 
 const MAX_THREAD int = 200
@@ -279,8 +280,10 @@ func main() {
 		break
 	case 2:
 		list = new(lock_list.Locklist)		
-//		count_int = new(count_stat.Count_stat)
 		break
+	case 3:
+		list = new(lockh_list.Hashlist)		
+		break		
 	default:
 		list = new(nonlock_list.List)
 		break
