@@ -54,7 +54,7 @@ func test_normal(l list_int) {
 	for i := 0; i < 1000; i++ {
 		tnode = l.Pop_head()
 		if tnode.Data != i {
-			err := fmt.Sprintf("1: err pop head, i = %d", i)
+			err := fmt.Sprintf("1: err pop head, i = %d, data = %d", i, tnode.Data)
 			panic(err)
 		}
 	}

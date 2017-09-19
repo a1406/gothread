@@ -62,7 +62,12 @@ func (l *list)push_head(n *node.Node) {
 }
 func (l *list)pop_tail() *node.Node {
 	var ret *node.Node
-	l.locker.Lock()	
+	l.locker.Lock()
+	if l.empty() {
+		l.locker.Unlock()		
+		return nil
+	}
+	
 	ret = l.tail
 	l.tail = l.tail.Pre
 
@@ -96,29 +101,42 @@ func (l *Hashlist)Init_list() {
 	for i := 0; i < MAX_HASH_SIZE; i++ {
 		l.hash_data[i].locker = new(sync.Mutex)
 	}
+	l.tail_idx = 1
 }
 
 func (l *Hashlist)Push_head(node *node.Node) int {
 	l.head_locker.Lock()
-	
-	l.move_head()
+	l.hash_data[l.head_idx].push_head(node)
+	l.move_head(-1)
 	l.head_locker.Unlock()	
 	return 0
 }
 func (l *Hashlist)Pop_head() *node.Node {
-	return nil
+	l.head_locker.Lock()
+	l.move_head(1)
+	ret := l.hash_data[l.head_idx].pop_head()
+	l.head_locker.Unlock()		
+	return ret
 }
 func (l *Hashlist)Push_tail(node *node.Node) int {
+	l.tail_locker.Lock()
+	l.hash_data[l.tail_idx].push_tail(node)
+	l.move_tail(1)
+	l.tail_locker.Unlock()	
 	return 0	
 }
 func (l *Hashlist)Pop_tail() *node.Node {
-	return nil
+	l.tail_locker.Lock()
+	l.move_tail(-1)
+	ret := l.hash_data[l.tail_idx].pop_tail()
+	l.tail_locker.Unlock()	
+	return ret
 }
 
-func (l *Hashlist)move_head() {
-	l.head_idx = l.head_idx - 1 & MAX_HASH_MASK
+func (l *Hashlist)move_head(i int) {
+	l.head_idx = (l.head_idx + i) & MAX_HASH_MASK
 }
-func (l *Hashlist)move_tail() {
-	l.tail_idx = l.tail_idx + 1 & MAX_HASH_MASK
+func (l *Hashlist)move_tail(i int) {
+	l.tail_idx = (l.tail_idx + i) & MAX_HASH_MASK
 }
 
