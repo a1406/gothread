@@ -256,9 +256,6 @@ func test_pushpop(l list_int, pushhead int, pushtail int, pophead int, poptail i
 
 
 func main() {
-//	n_read := flag.Int("r", 1, "num of read thread")
-//	n_update := flag.Int("u", 1, "num of update thread")
-//	n_duration := flag.Int64("s", 240, "sleep time")
 	var runtype int
 	flag.IntVar(&runtype, "t", 0, "do atomic")
 	flag.Int64Var(&duration, "s", 240, "sleep time")	
