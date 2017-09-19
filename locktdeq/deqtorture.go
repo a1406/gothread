@@ -37,21 +37,23 @@ func check(e error) {
 	}
 }
 
+const NORMAL_TEST_NUM int = 500
+
 func test_normal(l list_int) {
 	var tnode *node.Node
 	
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 - i - 1
+		tnode.Data = NORMAL_TEST_NUM - i - 1
 		l.Push_head(tnode)
 	}
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 + i
+		tnode.Data = NORMAL_TEST_NUM + i
 		l.Push_tail(tnode)
 	}
 	
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < (NORMAL_TEST_NUM * 2); i++ {
 		tnode = l.Pop_head()
 		if tnode.Data != i {
 			err := fmt.Sprintf("1: err pop head, i = %d, data = %d", i, tnode.Data)
@@ -60,20 +62,20 @@ func test_normal(l list_int) {
 	}
 
 	////
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 - i - 1
+		tnode.Data = NORMAL_TEST_NUM - i - 1
 		l.Push_head(tnode)
 	}
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 + i
+		tnode.Data = NORMAL_TEST_NUM + i
 		l.Push_tail(tnode)
 	}
 	
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < (NORMAL_TEST_NUM * 2); i++ {
 		tnode = l.Pop_tail()
-		if tnode.Data != 1000 - i - 1 {
+		if tnode.Data != (NORMAL_TEST_NUM * 2) - i - 1 {
 			err := fmt.Sprintf("2: err pop head, i = %d", i)
 			panic(err)
 		}
@@ -91,20 +93,20 @@ func test_normal(l list_int) {
 
 	///
 
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 - i - 1
+		tnode.Data = NORMAL_TEST_NUM - i - 1
 		l.Push_tail(tnode)
 	}
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 + i
+		tnode.Data = NORMAL_TEST_NUM + i
 		l.Push_head(tnode)
 	}
 	
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < (NORMAL_TEST_NUM * 2); i++ {
 		tnode = l.Pop_head()
-		if tnode.Data != 1000 - i - 1 {
+		if tnode.Data != (NORMAL_TEST_NUM * 2) - i - 1 {
 			err := fmt.Sprintf("3: err pop head, i = %d, data = %d", i, tnode.Data)
 			panic(err)
 		}
@@ -112,18 +114,18 @@ func test_normal(l list_int) {
 
 	////
 
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 - i - 1
+		tnode.Data = NORMAL_TEST_NUM - i - 1
 		l.Push_tail(tnode)
 	}
-	for i := 0; i < 500; i++ {
+	for i := 0; i < NORMAL_TEST_NUM; i++ {
 		tnode = new(node.Node)
-		tnode.Data = 500 + i
+		tnode.Data = NORMAL_TEST_NUM + i
 		l.Push_head(tnode)
 	}
 	
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < (NORMAL_TEST_NUM * 2); i++ {
 		tnode = l.Pop_tail()
 		if tnode.Data != i {
 			err := fmt.Sprintf("4: err pop tail, i = %d", i)
