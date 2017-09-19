@@ -3,10 +3,23 @@ package main
 import (
 	"fmt"
 	"flag"
-	//	"time"
+	"time"
 	"./node"
 	"./nonlock_list"
 )
+
+const MAX_THREAD int = 200
+const COUNT_THREAD_RUN int = 1000
+
+type thread_param_struct struct {
+	pushnum uint64
+	popnum uint64
+}
+
+var threaddone [MAX_THREAD]chan bool
+var thread_param [MAX_THREAD]thread_param_struct
+var goflag int = 0
+var duration int64
 
 type list_int interface {
 	Push_head(node *node.Node) int
@@ -67,6 +80,95 @@ func test_normal(l list_int) {
 	}
 }
 
+func pushhead_func(l list_int, chan_index int) {
+	for ; goflag == 0; {
+	}
+	threaddone[chan_index] <- true		
+}
+func pushtail_func(l list_int, chan_index int) {
+	for ; goflag == 0; {
+	}
+	threaddone[chan_index] <- true		
+}
+func pophead_func(l list_int, chan_index int) {
+	for ; goflag == 0; {
+	}
+	threaddone[chan_index] <- true			
+}
+func poptail_func(l list_int, chan_index int) {
+	for ; goflag == 0; {
+	}
+	threaddone[chan_index] <- true			
+}
+
+func perftestrun(l list_int, nthread int) {
+	fmt.Println(time.Now())	
+	time.Sleep(time.Duration(duration) * time.Millisecond)
+	goflag = 1
+
+	fmt.Println(time.Now())
+
+	var n_push, n_pop uint64
+	for i := 0; i < nthread; i++ {
+		<- threaddone[i]
+		n_push += thread_param[i].pushnum
+		n_pop += thread_param[i].popnum
+	}
+	
+	fmt.Printf("n_push: %d n_pop: %d nthread: %d duration: %d\n",
+		n_push, n_pop, nthread, duration)
+	var tr float64 = float64(duration) * 1000000 / float64(n_push)
+	var tu float64 = float64(duration) * 1000000 / float64(n_pop)	
+	fmt.Printf("ns/push: %f  ns/pop: %f\n", tr, tu)
+
+	var l_len uint64
+	for {
+		node := l.Pop_head()
+		if node == nil {
+			break
+		}
+		l_len++
+	}
+
+	if l_len + n_pop != n_push {
+		fmt.Printf("err, l_len = %d, n_pop = %d, n_push = %d\n", l_len, n_pop, n_push)
+	}
+
+// 	var final_count uint64
+// 	for i := 0; i < nreader + nupdater; i++ {
+// 		final_count += (count_int).Read_count(i)
+// 	}
+// 	
+// 	fmt.Printf("read count = %d[%f%%]\n", final_count,
+// 		float64(final_count) / float64(n_updates) * 100)
+}
+
+func test_pushpop(l list_int, pushhead int, pushtail int, pophead int, poptail int) {
+
+	for i := 0; i < pushhead + pushtail + pophead + poptail; i++ {
+		threaddone[i] = make(chan bool)		
+	}
+
+	var chan_index int
+	for i := 0; i < pushhead; i++ {
+		go pushhead_func(l, chan_index)
+		chan_index++
+	}
+	for i := 0; i < pushtail; i++ {
+		go pushtail_func(l, chan_index)
+		chan_index++		
+	}
+	for i := 0; i < pophead; i++ {
+		go pophead_func(l, chan_index)
+		chan_index++		
+	}
+	for i := 0; i < poptail; i++ {
+		go poptail_func(l, chan_index)
+		chan_index++		
+	}
+	perftestrun(l, pushhead + pushtail + pophead + poptail)
+}
+
 
 func main() {
 //	n_read := flag.Int("r", 1, "num of read thread")
@@ -74,6 +176,14 @@ func main() {
 //	n_duration := flag.Int64("s", 240, "sleep time")
 	var runtype int
 	flag.IntVar(&runtype, "t", 0, "do atomic")
+	flag.Int64Var(&duration, "s", 240, "sleep time")	
+
+	var pushhead, pushtail, pophead, poptail int
+	flag.IntVar(&pushhead, "pushhead", 1, "")
+	flag.IntVar(&pushtail, "pushtail", 1, "")
+	flag.IntVar(&pophead, "pophead", 1, "")
+	flag.IntVar(&poptail, "poptail", 1, "")	
+	
 	flag.Parse()
 	//	duration = *n_duration
 
@@ -92,5 +202,6 @@ func main() {
 	}
 
 	test_normal(list)
+	test_pushpop(list, pushhead, pushtail, pophead, poptail)
 //	perftest(*n_read, *n_update, count_int)
 }
