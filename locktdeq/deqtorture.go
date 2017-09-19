@@ -9,14 +9,14 @@ import (
 )
 
 const MAX_THREAD int = 200
-const COUNT_THREAD_RUN int = 1000
+const COUNT_THREAD_RUN int = 1
 
 type thread_param_struct struct {
 	pushnum uint64
 	popnum uint64
+	done chan bool	
 }
 
-var threaddone [MAX_THREAD]chan bool
 var thread_param [MAX_THREAD]thread_param_struct
 var goflag int = 0
 var duration int64
@@ -80,25 +80,47 @@ func test_normal(l list_int) {
 	}
 }
 
-func pushhead_func(l list_int, chan_index int) {
+func pushhead_func(l list_int, index int) {
 	for ; goflag == 0; {
+		for j := 0; j < COUNT_THREAD_RUN; j++ {
+			tnode := new(node.Node)
+			l.Push_head(tnode)
+		}
+		thread_param[index].pushnum += uint64(COUNT_THREAD_RUN)
+		time.Sleep(1)		
 	}
-	threaddone[chan_index] <- true		
+	thread_param[index].done <- true		
 }
-func pushtail_func(l list_int, chan_index int) {
+func pushtail_func(l list_int, index int) {
 	for ; goflag == 0; {
+		for j := 0; j < COUNT_THREAD_RUN; j++ {
+			tnode := new(node.Node)
+			l.Push_tail(tnode)
+		}
+		thread_param[index].pushnum += uint64(COUNT_THREAD_RUN)
+		time.Sleep(1)		
 	}
-	threaddone[chan_index] <- true		
+	thread_param[index].done <- true		
 }
-func pophead_func(l list_int, chan_index int) {
+func pophead_func(l list_int, index int) {
 	for ; goflag == 0; {
+		for j := 0; j < COUNT_THREAD_RUN; j++ {
+			l.Pop_head()
+		}
+		thread_param[index].popnum += uint64(COUNT_THREAD_RUN)
+		time.Sleep(1)		
 	}
-	threaddone[chan_index] <- true			
+	thread_param[index].done <- true		
 }
-func poptail_func(l list_int, chan_index int) {
+func poptail_func(l list_int, index int) {
 	for ; goflag == 0; {
+		for j := 0; j < COUNT_THREAD_RUN; j++ {
+			l.Pop_tail()
+		}
+		thread_param[index].popnum += uint64(COUNT_THREAD_RUN)
+		time.Sleep(1)		
 	}
-	threaddone[chan_index] <- true			
+	thread_param[index].done <- true		
 }
 
 func perftestrun(l list_int, nthread int) {
@@ -110,7 +132,7 @@ func perftestrun(l list_int, nthread int) {
 
 	var n_push, n_pop uint64
 	for i := 0; i < nthread; i++ {
-		<- threaddone[i]
+		<- thread_param[i].done
 		n_push += thread_param[i].pushnum
 		n_pop += thread_param[i].popnum
 	}
@@ -146,7 +168,7 @@ func perftestrun(l list_int, nthread int) {
 func test_pushpop(l list_int, pushhead int, pushtail int, pophead int, poptail int) {
 
 	for i := 0; i < pushhead + pushtail + pophead + poptail; i++ {
-		threaddone[i] = make(chan bool)		
+		thread_param[i].done = make(chan bool)		
 	}
 
 	var chan_index int
