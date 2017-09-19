@@ -1,7 +1,7 @@
 package main
 
 import (
-//	"fmt"
+	"fmt"
 	"flag"
 	//	"time"
 	"./node"
@@ -22,6 +22,49 @@ func check(e error) {
 }
 
 func test_normal(l list_int) {
+	var tnode *node.Node
+	
+	for i := 0; i < 1000; i++ {
+		tnode = new(node.Node)
+		tnode.Data = i
+		l.Push_head(tnode)
+	}
+	for i := 0; i < 1000; i++ {
+		tnode = l.Pop_tail()
+		if tnode.Data != i {
+			err := fmt.Sprintf("err pop tail, i = %d", i)
+			panic(err)
+		}
+	}
+	tnode = l.Pop_head()
+	if tnode != nil {
+		panic("err pop head, not nil")		
+	}
+	tnode = l.Pop_tail()
+	if tnode != nil {
+		panic("err pop tail, not nil")		
+	}
+
+	for i := 0; i < 1000; i++ {
+		tnode = new(node.Node)
+		tnode.Data = i
+		l.Push_tail(tnode)
+	}
+	for i := 0; i < 1000; i++ {
+		tnode = l.Pop_head()
+		if tnode.Data != i {
+			err := fmt.Sprintf("err pop head, i = %d", i)
+			panic(err)
+		}
+	}
+	tnode = l.Pop_head()
+	if tnode != nil {
+		panic("err pop head, not nil")		
+	}
+	tnode = l.Pop_tail()
+	if tnode != nil {
+		panic("err pop tail, not nil")		
+	}
 }
 
 
