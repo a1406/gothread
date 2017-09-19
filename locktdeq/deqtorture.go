@@ -22,6 +22,7 @@ var goflag int = 0
 var duration int64
 
 type list_int interface {
+	Init_list()
 	Push_head(node *node.Node) int
 	Pop_head() *node.Node
 	Push_tail(node *node.Node) int
@@ -105,9 +106,10 @@ func pushtail_func(l list_int, index int) {
 func pophead_func(l list_int, index int) {
 	for ; goflag == 0; {
 		for j := 0; j < COUNT_THREAD_RUN; j++ {
-			l.Pop_head()
+			if l.Pop_head() != nil {
+				thread_param[index].popnum++
+			}
 		}
-		thread_param[index].popnum += uint64(COUNT_THREAD_RUN)
 		time.Sleep(1)		
 	}
 	thread_param[index].done <- true		
@@ -115,9 +117,10 @@ func pophead_func(l list_int, index int) {
 func poptail_func(l list_int, index int) {
 	for ; goflag == 0; {
 		for j := 0; j < COUNT_THREAD_RUN; j++ {
-			l.Pop_tail()
+			if l.Pop_tail() != nil {
+				thread_param[index].popnum++
+			}
 		}
-		thread_param[index].popnum += uint64(COUNT_THREAD_RUN)
 		time.Sleep(1)		
 	}
 	thread_param[index].done <- true		
@@ -222,6 +225,8 @@ func main() {
 		list = new(nonlock_list.List)
 		break
 	}
+
+	list.Init_list()
 
 	test_normal(list)
 	test_pushpop(list, pushhead, pushtail, pophead, poptail)

@@ -5,68 +5,66 @@ import (
 )
 
 type List struct {
-	Head *node.Node
-	Tail *node.Node
+	head *node.Node
+	tail *node.Node
 }
 
-func (l *List)InitList() {
-	l.Head = nil
-	l.Tail = nil
+func (l *List)Init_list() {
 }
 
 func (l *List)Push_head(n *node.Node) int {
 	n.Pre = nil
-	n.Next = l.Head
-	if l.Head != nil {
-		l.Head.Pre = n
+	n.Next = l.head
+	if l.head != nil {
+		l.head.Pre = n
 	}
-	if l.Tail == nil {
-		l.Tail = n
+	if l.tail == nil {
+		l.tail = n
 	}
 	
-	l.Head = n
+	l.head = n
 	return 0
 }
 func (l *List)Pop_head() *node.Node {
-	if l.Head == nil {
+	if l.head == nil {
 		return nil
 	}
 	var ret *node.Node
-	ret = l.Head
-	l.Head = l.Head.Next
+	ret = l.head
+	l.head = l.head.Next
 
-	if l.Head != nil {
-		l.Head.Pre = nil
+	if l.head != nil {
+		l.head.Pre = nil
 	} else {
-		l.Tail = nil
+		l.tail = nil
 	}
 	return ret
 }
 func (l *List)Push_tail(node *node.Node) int {
 	node.Next = nil
-	node.Pre = l.Tail
-	if l.Tail != nil {
-		l.Tail.Next = node
+	node.Pre = l.tail
+	if l.tail != nil {
+		l.tail.Next = node
 	}
-	if l.Head == nil {
-		l.Head = node
+	if l.head == nil {
+		l.head = node
 	}
 	
-	l.Tail = node
+	l.tail = node
 	return 0
 }
 func (l *List)Pop_tail() *node.Node {
-	if l.Tail == nil {
+	if l.tail == nil {
 		return nil
 	}
 	var ret *node.Node
-	ret = l.Tail
-	l.Tail = l.Tail.Pre
+	ret = l.tail
+	l.tail = l.tail.Pre
 
-	if l.Tail != nil {
-		l.Tail.Next = nil
+	if l.tail != nil {
+		l.tail.Next = nil
 	} else {
-		l.Head = nil
+		l.head = nil
 	}
 	return ret
 }
