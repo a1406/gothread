@@ -16,6 +16,32 @@ type list struct {
 	tail *node.Node
 }
 
+func (l *list)pop_head() *node.Node{
+	var ret *node.Node
+	ret = l.head
+	l.head = l.head.Next
+
+	if l.head != nil {
+		l.head.Pre = nil
+	} else {
+		l.tail = nil
+	}
+	return ret
+}
+func (l *list)pop_tail() *node.Node{
+	var ret *node.Node
+	ret = l.tail
+	l.tail = l.tail.Pre
+
+	if l.tail != nil {
+		l.tail.Next = nil
+	} else {
+		l.head = nil
+	}
+	return ret
+}
+
+
 func (l *Locklist)Init_list() {
 	l.head.locker = new(sync.Mutex)
 	l.tail.locker = new(sync.Mutex)
@@ -48,15 +74,8 @@ func (l *Locklist)tail_to_head() *node.Node {
 	}
 
 	var ret *node.Node
-	ret = l.tail.head
-	l.tail.head = l.tail.head.Next
-
-	if l.tail.head != nil {
-		l.tail.head.Pre = nil
-	} else {
-		l.tail.tail = nil
-	}
-
+	ret = l.tail.pop_head()
+	
 	l.tail.locker.Unlock()
 	l.head.locker.Unlock()	
 	return ret
@@ -69,14 +88,7 @@ func (l *Locklist)head_to_tail() *node.Node {
 
 	if l.tail.tail != nil {
 		var ret *node.Node
-		ret = l.tail.tail
-		l.tail.tail = l.tail.tail.Pre
-
-		if l.tail.tail != nil {
-			l.tail.tail.Next = nil
-		} else {
-			l.tail.head = nil
-		}
+		ret = l.tail.pop_tail()
 		l.tail.locker.Unlock()
 		l.head.locker.Unlock()
 		return ret
@@ -89,14 +101,7 @@ func (l *Locklist)head_to_tail() *node.Node {
 	}
 
 	var ret *node.Node
-	ret = l.head.tail
-	l.head.tail = l.head.tail.Pre
-
-	if l.head.tail != nil {
-		l.head.tail.Next = nil
-	} else {
-		l.head.head = nil
-	}
+	ret = l.head.pop_tail()
 	l.tail.locker.Unlock()
 	l.head.locker.Unlock()
 	return ret
@@ -109,15 +114,7 @@ func (l *Locklist)Pop_head() *node.Node {
 		return l.tail_to_head()
 	}
 	var ret *node.Node
-	ret = l.head.head
-	l.head.head = l.head.head.Next
-
-	if l.head.head != nil {
-		l.head.head.Pre = nil
-	} else {
-		l.head.tail = nil
-	}
-
+	ret = l.head.pop_head()
 	l.head.locker.Unlock()	
 	return ret
 }
@@ -142,14 +139,7 @@ func (l *Locklist)Pop_tail() *node.Node {
 		return l.head_to_tail()
 	}
 	var ret *node.Node
-	ret = l.tail.tail
-	l.tail.tail = l.tail.tail.Pre
-
-	if l.tail.tail != nil {
-		l.tail.tail.Next = nil
-	} else {
-		l.tail.head = nil
-	}
+	ret = l.tail.pop_tail()
 	l.tail.locker.Unlock()			
 	return ret
 }
