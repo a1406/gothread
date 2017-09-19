@@ -39,18 +39,46 @@ func check(e error) {
 func test_normal(l list_int) {
 	var tnode *node.Node
 	
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 500; i++ {
 		tnode = new(node.Node)
-		tnode.Data = i
+		tnode.Data = 500 - i - 1
 		l.Push_head(tnode)
 	}
+	for i := 0; i < 500; i++ {
+		tnode = new(node.Node)
+		tnode.Data = 500 + i
+		l.Push_tail(tnode)
+	}
+	
 	for i := 0; i < 1000; i++ {
-		tnode = l.Pop_tail()
+		tnode = l.Pop_head()
 		if tnode.Data != i {
-			err := fmt.Sprintf("err pop tail, i = %d", i)
+			err := fmt.Sprintf("1: err pop head, i = %d", i)
 			panic(err)
 		}
 	}
+
+	////
+	for i := 0; i < 500; i++ {
+		tnode = new(node.Node)
+		tnode.Data = 500 - i - 1
+		l.Push_head(tnode)
+	}
+	for i := 0; i < 500; i++ {
+		tnode = new(node.Node)
+		tnode.Data = 500 + i
+		l.Push_tail(tnode)
+	}
+	
+	for i := 0; i < 1000; i++ {
+		tnode = l.Pop_tail()
+		if tnode.Data != 1000 - i - 1 {
+			err := fmt.Sprintf("2: err pop head, i = %d", i)
+			panic(err)
+		}
+	}
+	
+	
 	tnode = l.Pop_head()
 	if tnode != nil {
 		panic("err pop head, not nil")		
@@ -60,18 +88,48 @@ func test_normal(l list_int) {
 		panic("err pop tail, not nil")		
 	}
 
-	for i := 0; i < 1000; i++ {
+	///
+
+	for i := 0; i < 500; i++ {
 		tnode = new(node.Node)
-		tnode.Data = i
+		tnode.Data = 500 - i - 1
 		l.Push_tail(tnode)
 	}
+	for i := 0; i < 500; i++ {
+		tnode = new(node.Node)
+		tnode.Data = 500 + i
+		l.Push_head(tnode)
+	}
+	
 	for i := 0; i < 1000; i++ {
 		tnode = l.Pop_head()
-		if tnode.Data != i {
-			err := fmt.Sprintf("err pop head, i = %d", i)
+		if tnode.Data != 1000 - i - 1 {
+			err := fmt.Sprintf("3: err pop head, i = %d, data = %d", i, tnode.Data)
 			panic(err)
 		}
 	}
+
+	////
+
+	for i := 0; i < 500; i++ {
+		tnode = new(node.Node)
+		tnode.Data = 500 - i - 1
+		l.Push_tail(tnode)
+	}
+	for i := 0; i < 500; i++ {
+		tnode = new(node.Node)
+		tnode.Data = 500 + i
+		l.Push_head(tnode)
+	}
+	
+	for i := 0; i < 1000; i++ {
+		tnode = l.Pop_tail()
+		if tnode.Data != i {
+			err := fmt.Sprintf("4: err pop tail, i = %d", i)
+			panic(err)
+		}
+	}
+	
 	tnode = l.Pop_head()
 	if tnode != nil {
 		panic("err pop head, not nil")		
