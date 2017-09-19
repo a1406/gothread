@@ -143,4 +143,6 @@ func (l *Locklist)Pop_tail() *node.Node {
 	l.tail.locker.Unlock()			
 	return ret
 }
+func (l *Locklist)Debug_print() {
+}
 

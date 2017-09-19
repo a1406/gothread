@@ -11,7 +11,7 @@ import (
 )
 
 const MAX_THREAD int = 200
-const COUNT_THREAD_RUN int = 1
+const COUNT_THREAD_RUN int = 10
 
 type thread_param_struct struct {
 	pushnum uint64
@@ -29,6 +29,7 @@ type list_int interface {
 	Pop_head() *node.Node
 	Push_tail(node *node.Node) int
 	Pop_tail() *node.Node
+	Debug_print()
 }
 
 func check(e error) {
@@ -72,6 +73,7 @@ func test_normal(l list_int) {
 		tnode.Data = NORMAL_TEST_NUM + i
 		l.Push_tail(tnode)
 	}
+
 	
 	for i := 0; i < (NORMAL_TEST_NUM * 2); i++ {
 		tnode = l.Pop_tail()
@@ -103,6 +105,7 @@ func test_normal(l list_int) {
 		tnode.Data = NORMAL_TEST_NUM + i
 		l.Push_head(tnode)
 	}
+
 	
 	for i := 0; i < (NORMAL_TEST_NUM * 2); i++ {
 		tnode = l.Pop_head()
@@ -292,5 +295,4 @@ func main() {
 
 	test_normal(list)
 	test_pushpop(list, pushhead, pushtail, pophead, poptail)
-//	perftest(*n_read, *n_update, count_int)
 }

@@ -69,3 +69,5 @@ func (l *List)Pop_tail() *node.Node {
 	return ret
 }
 
+func (l *List)Debug_print() {
+}

@@ -1,8 +1,9 @@
 package lockh_list
 
 import (
-       "../node"
-       "sync"
+	"fmt"
+	"../node"
+	"sync"
 )
 
 const MAX_HASH_SIZE int = 8
@@ -115,6 +116,9 @@ func (l *Hashlist)Pop_head() *node.Node {
 	l.head_locker.Lock()
 	l.move_head(1)
 	ret := l.hash_data[l.head_idx].pop_head()
+	if ret == nil {
+		l.move_head(-1)
+	}
 	l.head_locker.Unlock()		
 	return ret
 }
@@ -129,6 +133,9 @@ func (l *Hashlist)Pop_tail() *node.Node {
 	l.tail_locker.Lock()
 	l.move_tail(-1)
 	ret := l.hash_data[l.tail_idx].pop_tail()
+	if ret == nil {
+		l.move_tail(1)
+	}
 	l.tail_locker.Unlock()	
 	return ret
 }
@@ -140,3 +147,6 @@ func (l *Hashlist)move_tail(i int) {
 	l.tail_idx = (l.tail_idx + i) & MAX_HASH_MASK
 }
 
+func (l *Hashlist)Debug_print() {
+	fmt.Printf("headidx[%d] tailidx[%d]\n", l.head_idx, l.tail_idx)
+}
