@@ -1,8 +1,9 @@
 package nonlock_table
 
-const bucket_num uint = 8
+//const bucket_num uint = 8
 type Table_nonlock struct {
-	ht_bkt [bucket_num]ht_bucket
+	size uint
+	ht_bkt []ht_bucket
 }
 
 type ht_bucket struct {
@@ -15,7 +16,7 @@ type ht_bucket_entry struct {
 
 func (t *Table_nonlock)Num() uint {
 	var ret uint
-	for i := uint(0); i < bucket_num; i++ {
+	for i := uint(0); i < t.size; i++ {
 		for cur := t.ht_bkt[i].head; cur != nil; cur = cur.next {
 			ret++
 		}
@@ -23,10 +24,12 @@ func (t *Table_nonlock)Num() uint {
 	return ret
 }
 
-func (t *Table_nonlock)Init() {
+func (t *Table_nonlock)Init(size uint) {
+	t.size = size
+	t.ht_bkt = make([]ht_bucket, size)
 }
 func (t *Table_nonlock)Lookup(k int) bool {
-	i := uint(k) % bucket_num
+	i := uint(k) % t.size
 	for cur := t.ht_bkt[i].head; cur != nil; cur = cur.next {
 		if cur.data == k {
 			return true
@@ -35,7 +38,7 @@ func (t *Table_nonlock)Lookup(k int) bool {
 	return false
 }
 func (t *Table_nonlock)Insert(k int) {
-	i := uint(k) % bucket_num
+	i := uint(k) % t.size
 	var bucket ht_bucket_entry
 	bucket.data = k
 	bucket.next = t.ht_bkt[i].head
@@ -43,7 +46,7 @@ func (t *Table_nonlock)Insert(k int) {
 	return
 }
 func (t *Table_nonlock)Delete(k int) bool {
-	i := uint(k) % bucket_num
+	i := uint(k) % t.size
 	pre := t.ht_bkt[i].head
 	if pre == nil {
 		return false

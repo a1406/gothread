@@ -10,7 +10,7 @@ import (
 )
 
 type hash_table_int interface {
-	Init()
+	Init(size uint)
 	Lookup(k int) bool
 	Insert(k int)
 	Delete(k int) bool
@@ -59,7 +59,7 @@ func delete_perf_test(i uint, table_int hash_table_int) {
 	delete_threaddone[i] <- true	
 }
 
-func perftest(reader, writer, duration uint, table_int hash_table_int) {
+func perftest(reader, writer, duration, size uint, table_int hash_table_int) {
 	if reader > MAX_THREAD || writer > MAX_THREAD {
 		fmt.Println("too much thread")
 		return
@@ -75,7 +75,7 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 		delete_threaddone[i] = make(chan bool)		
 	}
 	
-	table_int.Init()
+	table_int.Init(size)
 	for i := uint(0); i < reader; i++ {
 		go read_perf_test(i, table_int)
 	}
@@ -130,19 +130,20 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 		n_reads, n_writes1, n_writes2, reader, writer / 2, writer, escape_time)
 	var tr float64 = float64(escape_time) * float64(reader) / float64(n_reads)
 	var tu float64 = float64(escape_time) * float64(writer + writer / 2) / float64(n_writes2)
-	fmt.Printf("ns/read: %f  ns/update: %f\n", tr, tu)
+	fmt.Printf("size %d, ns/read: %f  ns/update: %f\n", size, tr, tu)
 
 	final_count := table_int.Num()
 	fmt.Printf("final count = %d, check num = %d\n", final_count, check_num)
 }
 
 func main() {
-	var reader, writer, duration uint
+	var reader, writer, duration, size uint
 	var runtype int
 	flag.IntVar(&runtype, "t", 0, "runtype")
 	flag.UintVar(&reader, "r", 2, "read thread num")
 	flag.UintVar(&writer, "w", 2, "write thread num")
-	flag.UintVar(&duration, "s", 240, "sleep time")	
+	flag.UintVar(&duration, "s", 240, "sleep time")
+	flag.UintVar(&size, "size", 16, "hash size")		
 	flag.Parse()
 
 	var table_int hash_table_int
@@ -158,5 +159,5 @@ func main() {
  		break
  	}
 
-	perftest(reader, writer, duration, table_int)
+	perftest(reader, writer, duration, size, table_int)
 }
