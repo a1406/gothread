@@ -13,7 +13,7 @@ type hash_table_int interface {
 	Init()
 	Lookup(k int) bool
 	Insert(k int)
-	Delete(k int)
+	Delete(k int) bool
 }
 
 const MAX_THREAD uint = 20
