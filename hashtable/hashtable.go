@@ -5,7 +5,7 @@ import (
 	"flag"
 	"time"
 	"./nonlock_table"
-//	"./rcu_table"
+	"./rcu_table"
 	"./lock_table"		
 )
 
@@ -148,9 +148,9 @@ func main() {
  	case 1:
  		table_int = new(lock_table.Table_lock)
  		break
-// 	case 2:
-// 		table_int = new(count_stat.Count_stat)
-// 		break
+ 	case 2:
+		table_int = new(rcu_table.Table_rcu)
+		break
  	default:
  		table_int = new(nonlock_table.Table_nonlock)
  		break
