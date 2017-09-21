@@ -80,6 +80,7 @@ func (t *Table_lock)Delete(k int) bool {
 			t.ht_bkt[i].locker.Unlock()					
 			return true
 		}
+		pre = cur
 	}
 	t.ht_bkt[i].locker.Unlock()			
 	return false

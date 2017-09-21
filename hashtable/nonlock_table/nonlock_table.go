@@ -58,6 +58,7 @@ func (t *Table_nonlock)Delete(k int) bool {
 			pre.next = cur.next
 			return true
 		}
+		pre = cur
 	}
 	return false
 }

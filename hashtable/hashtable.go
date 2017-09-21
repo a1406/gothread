@@ -84,10 +84,10 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 		go delete_perf_test(i, table_int)
 	}
 
-	fmt.Println(time.Now())	
+	start_time := time.Now().UnixNano()
+//	fmt.Println(start_time)	
 	time.Sleep(time.Duration(duration) * time.Millisecond)
 	goflag = 1
-	fmt.Println(time.Now())
 
 	for i := uint(0); i < reader; i++ {
 		<- read_threaddone[i]
@@ -98,6 +98,11 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 	for i := uint(0); i < writer / 2; i++ {
 		<- delete_threaddone[i]		
 	}
+
+	end_time := time.Now().UnixNano()	
+	//	fmt.Println(end_time)
+	escape_time := end_time - start_time
+	fmt.Println(escape_time)
 
 	var n_reads, n_writes1, n_writes2 , check_num uint
 	for i := uint(0); i < MAX_THREAD; i++ {
@@ -120,9 +125,9 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 	}
 	
 	fmt.Printf("n_reads: %d n_writes: [%d]%d nreaders: %d nwriters: [%d]%d duration: %d\n",
-		n_reads, n_writes1, n_writes2, reader, writer / 2, writer, duration)
-	var tr float64 = float64(duration) * 1000000 * float64(n_reads) / float64(reader)
-	var tu float64 = float64(duration) * 1000000 * float64(n_writes2) / float64(writer + writer / 2)	
+		n_reads, n_writes1, n_writes2, reader, writer / 2, writer, escape_time)
+	var tr float64 = float64(escape_time) * float64(reader) / float64(n_reads)
+	var tu float64 = float64(escape_time) * float64(writer + writer / 2) / float64(n_writes2)
 	fmt.Printf("ns/read: %f  ns/update: %f\n", tr, tu)
 
 	final_count := table_int.Num()
