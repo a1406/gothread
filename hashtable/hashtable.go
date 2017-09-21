@@ -6,7 +6,8 @@ import (
 	"time"
 	"./nonlock_table"
 	"./rcu_table"
-	"./lock_table"		
+	"./lock_table"
+	"./rwlock_table"			
 )
 
 type hash_table_int interface {
@@ -42,7 +43,7 @@ func insert_perf_test(i uint, table_int hash_table_int) {
 			table_int.Insert(t)
 			insert_num[i]++
 		}
-		time.Sleep(1)		
+//		time.Sleep(1)		
 	}
 	insert_threaddone[i] <- true	
 }
@@ -54,7 +55,7 @@ func delete_perf_test(i uint, table_int hash_table_int) {
 			}
 			delete_num[i]++			
 		}
-		time.Sleep(1)				
+//		time.Sleep(1)				
 	}
 	delete_threaddone[i] <- true	
 }
@@ -139,7 +140,7 @@ func perftest(reader, writer, duration, size uint, table_int hash_table_int) {
 func main() {
 	var reader, writer, duration, size uint
 	var runtype int
-	flag.IntVar(&runtype, "t", 0, "runtype")
+	flag.IntVar(&runtype, "t", 0, "runtype, 0:nonlock 1:lock 2:rcu 3:rwlock")
 	flag.UintVar(&reader, "r", 2, "read thread num")
 	flag.UintVar(&writer, "w", 2, "write thread num")
 	flag.UintVar(&duration, "s", 240, "sleep time")
@@ -153,6 +154,9 @@ func main() {
  		break
  	case 2:
 		table_int = new(rcu_table.Table_rcu)
+		break
+ 	case 3:
+		table_int = new(rwlock_table.Table_lock)
 		break
  	default:
  		table_int = new(nonlock_table.Table_nonlock)
