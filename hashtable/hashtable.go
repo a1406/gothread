@@ -14,22 +14,47 @@ type hash_table_int interface {
 	Lookup(k int) bool
 	Insert(k int)
 	Delete(k int) bool
+	Num() uint
 }
 
 const MAX_THREAD uint = 20
 var goflag int = 0
 var read_threaddone [MAX_THREAD]chan bool
-var write_threaddone [MAX_THREAD]chan bool
+var insert_threaddone [MAX_THREAD]chan bool
+var delete_threaddone [MAX_THREAD]chan bool
+var read [MAX_THREAD] uint
+var insert_num [MAX_THREAD] uint
+var delete_num [MAX_THREAD] uint
+var delete_suc_num [MAX_THREAD] uint
 
 func read_perf_test(i uint, table_int hash_table_int) {
 	for ; goflag == 0; {
+		for t := -1000; t <= 1000; t++ {
+			table_int.Lookup(t)
+			read[i]++
+		}
 	}
 	read_threaddone[i] <- true
 }
-func write_perf_test(i uint, table_int hash_table_int) {
+func insert_perf_test(i uint, table_int hash_table_int) {
 	for ; goflag == 0; {
+		for t := -1000; t <= 1000; t++ {
+			table_int.Insert(t)
+			insert_num[i]++
+		}
 	}
-	write_threaddone[i] <- true	
+	insert_threaddone[i] <- true	
+}
+func delete_perf_test(i uint, table_int hash_table_int) {
+	for ; goflag == 0; {
+		for t := -1000; t <= 1000; t++ {
+			if table_int.Delete(t) {
+				delete_suc_num[i]++
+			}
+			delete_num[i]++			
+		}
+	}
+	delete_threaddone[i] <- true	
 }
 
 func perftest(reader, writer, duration uint, table_int hash_table_int) {
@@ -42,7 +67,10 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 		read_threaddone[i] = make(chan bool)		
 	}
 	for i := uint(0); i < writer; i++ {
-		write_threaddone[i] = make(chan bool)		
+		insert_threaddone[i] = make(chan bool)		
+	}
+	for i := uint(0); i < writer / 2; i++ {
+		delete_threaddone[i] = make(chan bool)		
 	}
 	
 	table_int.Init()
@@ -50,7 +78,10 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 		go read_perf_test(i, table_int)
 	}
 	for i := uint(0); i < writer; i++ {
-		go write_perf_test(i, table_int)
+		go insert_perf_test(i, table_int)
+	}
+	for i := uint(0); i < writer / 2; i++ {
+		go delete_perf_test(i, table_int)
 	}
 
 	fmt.Println(time.Now())	
@@ -62,8 +93,40 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 		<- read_threaddone[i]
 	}
 	for i := uint(0); i < writer; i++ {
-		<- write_threaddone[i]		
+		<- insert_threaddone[i]		
 	}
+	for i := uint(0); i < writer / 2; i++ {
+		<- delete_threaddone[i]		
+	}
+
+	var n_reads, n_writes1, n_writes2 , check_num uint
+	for i := uint(0); i < MAX_THREAD; i++ {
+		n_reads += read[i]
+		n_writes1 += insert_num[i]
+		n_writes1 += delete_suc_num[i]
+		n_writes2 += insert_num[i]
+		n_writes2 += delete_num[i]
+
+		check_num += insert_num[i]
+		check_num -= delete_suc_num[i]
+
+		// if insert_num[i] > 0 {
+		// 	fmt.Printf("insert %d\n", insert_num[i])
+		// }
+		// if delete_suc_num[i] > 0 {
+		// 	fmt.Printf("delete %d\n", delete_suc_num[i])
+		// }
+		
+	}
+	
+	fmt.Printf("n_reads: %d n_writes: [%d]%d nreaders: %d nwriters: [%d]%d duration: %d\n",
+		n_reads, n_writes1, n_writes2, reader, writer / 2, writer, duration)
+	var tr float64 = float64(duration) * 1000000 * float64(n_reads) / float64(reader)
+	var tu float64 = float64(duration) * 1000000 * float64(n_writes2) / float64(writer + writer / 2)	
+	fmt.Printf("ns/read: %f  ns/update: %f\n", tr, tu)
+
+	final_count := table_int.Num()
+	fmt.Printf("final count = %d, check num = %d\n", final_count, check_num)
 }
 
 func main() {
