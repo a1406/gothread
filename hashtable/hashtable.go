@@ -29,7 +29,7 @@ var delete_suc_num [MAX_THREAD] uint
 
 func read_perf_test(i uint, table_int hash_table_int) {
 	for ; goflag == 0; {
-		for t := -1000; t <= 1000; t++ {
+		for t := -10000; t <= 10000; t++ {
 			table_int.Lookup(t)
 			read[i]++
 		}
@@ -38,21 +38,23 @@ func read_perf_test(i uint, table_int hash_table_int) {
 }
 func insert_perf_test(i uint, table_int hash_table_int) {
 	for ; goflag == 0; {
-		for t := -1000; t <= 1000; t++ {
+		for t := -100; t <= 100; t++ {
 			table_int.Insert(t)
 			insert_num[i]++
 		}
+		time.Sleep(1)		
 	}
 	insert_threaddone[i] <- true	
 }
 func delete_perf_test(i uint, table_int hash_table_int) {
 	for ; goflag == 0; {
-		for t := -1000; t <= 1000; t++ {
+		for t := -100; t <= 100; t++ {
 			if table_int.Delete(t) {
 				delete_suc_num[i]++
 			}
 			delete_num[i]++			
 		}
+		time.Sleep(1)				
 	}
 	delete_threaddone[i] <- true	
 }

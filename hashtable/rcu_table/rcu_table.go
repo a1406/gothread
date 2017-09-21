@@ -2,6 +2,7 @@ package rcu_table
 
 import (
 	"sync"
+	"sync/atomic"	
 )
 
 const bucket_num uint = 8
@@ -11,7 +12,7 @@ type Table_rcu struct {
 
 type ht_bucket struct {
 	head *ht_bucket_entry
-	readers uint
+	readers int32
 	locker *sync.Mutex
 }
 
@@ -23,11 +24,11 @@ type ht_bucket_entry struct {
 func (t *Table_rcu)Num() uint {
 	var ret uint
 	for i := uint(0); i < bucket_num; i++ {
-		t.ht_bkt[i].locker.Lock()		
+		atomic.AddInt32(&t.ht_bkt[i].readers, 1)
 		for cur := t.ht_bkt[i].head; cur != nil; cur = cur.next {
 			ret++
 		}
-		t.ht_bkt[i].locker.Unlock()
+		atomic.AddInt32(&t.ht_bkt[i].readers, -1)		
 	}
 	return ret
 }
@@ -39,14 +40,14 @@ func (t *Table_rcu)Init() {
 }
 func (t *Table_rcu)Lookup(k int) bool {
 	i := uint(k) % bucket_num
-	t.ht_bkt[i].locker.Lock()
+	atomic.AddInt32(&t.ht_bkt[i].readers, 1)
 	for cur := t.ht_bkt[i].head; cur != nil; cur = cur.next {
 		if cur.data == k {
 			t.ht_bkt[i].locker.Unlock()
 			return true
 		}
 	}
-	t.ht_bkt[i].locker.Unlock()	
+	atomic.AddInt32(&t.ht_bkt[i].readers, -1)		
 	return false
 }
 func (t *Table_rcu)Insert(k int) {
@@ -54,9 +55,13 @@ func (t *Table_rcu)Insert(k int) {
 	var bucket ht_bucket_entry
 	bucket.data = k
 
-	t.ht_bkt[i].locker.Lock()	
-	bucket.next = t.ht_bkt[i].head
-	t.ht_bkt[i].head = &bucket
+	t.ht_bkt[i].locker.Lock()
+	var new_head *ht_bucket_entry
+	new_head = t.ht_bkt[i].head
+	
+	bucket.next = new_head
+	new_head = &bucket
+	
 	t.ht_bkt[i].locker.Unlock()		
 	return
 }
