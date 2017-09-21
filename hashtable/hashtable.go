@@ -6,7 +6,7 @@ import (
 	"time"
 	"./nonlock_table"
 //	"./rcu_table"
-//	"./lock_table"		
+	"./lock_table"		
 )
 
 type hash_table_int interface {
@@ -77,9 +77,9 @@ func main() {
 
 	var table_int hash_table_int
  	switch runtype {
-// 	case 1:
-// 		table_int = new(count_atomic.Count_atomic)
-// 		break
+ 	case 1:
+ 		table_int = new(lock_table.Table_lock)
+ 		break
 // 	case 2:
 // 		table_int = new(count_stat.Count_stat)
 // 		break
