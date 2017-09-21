@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"flag"
 	"time"
+	"./nonlock_table"
+//	"./rcu_table"
+//	"./lock_table"		
 )
 
 type hash_table_int interface {
-	init()
-	lookup(k int) int
-	insert(k int)
+	Init()
+	Lookup(k int) bool
+	Insert(k int)
+	Delete(k int)
 }
 
 const MAX_THREAD uint = 20
@@ -41,7 +45,7 @@ func perftest(reader, writer, duration uint, table_int hash_table_int) {
 		write_threaddone[i] = make(chan bool)		
 	}
 	
-	table_int.init()
+	table_int.Init()
 	for i := uint(0); i < reader; i++ {
 		go read_perf_test(i, table_int)
 	}
@@ -72,17 +76,17 @@ func main() {
 	flag.Parse()
 
 	var table_int hash_table_int
-// 	switch runtype {
+ 	switch runtype {
 // 	case 1:
 // 		table_int = new(count_atomic.Count_atomic)
 // 		break
 // 	case 2:
 // 		table_int = new(count_stat.Count_stat)
 // 		break
-// 	default:
-// 		table_int = new(count_nonatomic.Count_nonatomic)
-// 		break
-// 	}
+ 	default:
+ 		table_int = new(nonlock_table.Table_nonlock)
+ 		break
+ 	}
 
 	perftest(reader, writer, duration, table_int)
 }
