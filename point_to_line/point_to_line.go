@@ -17,16 +17,16 @@ func count_distance(a float64, x1, y1 float64) float64 {
 }
 
 func count_pos(a float64, x1, y1, dist float64) (float64, float64) {
-	a = -1.0 / a
-	c := math.Sqrt(a * a + 1.0)
+	a2 := -1.0 / a
+	c := math.Sqrt(a2 * a2 + 1.0)
 	rate := dist / c
 
 	var ret_x, ret_y float64
 	tmp := x1 * a
 	if tmp > y1 {
-		ret_y = y1 + rate * a
+		ret_y = y1 + rate * math.Abs(a2)
 	} else {
-		ret_y = y1 - rate * a		
+		ret_y = y1 - rate * math.Abs(a2)
 	}
 
 	tmp = y1 / a
@@ -36,6 +36,22 @@ func count_pos(a float64, x1, y1, dist float64) (float64, float64) {
 		ret_x = x1 - rate		
 	}
 
+	return ret_x, ret_y
+}
+
+func count_pos2(a float64, x1, y1, dist float64) (float64, float64) {
+	var ret_x, ret_y float64
+	//y = ax+b  b=y-ax
+	a2 := -1.0 / a
+//	b := math.Abs(y1 - a2 * x1)
+	b := y1 - a2 * x1
+	
+	angle := math.Atan(a)
+	//sin=t1/b   t1=sin*b
+	t1 := math.Sin(angle) * b
+	ret_x = math.Cos(angle) * t1
+	ret_y = math.Sin(angle) * t1
+	
 	return ret_x, ret_y
 }
 
@@ -59,5 +75,8 @@ func main() {
 	var ret_x, ret_y float64
 	ret_x, ret_y = count_pos(float64(a), x1, y1, dist)
 	fmt.Printf("%.2f, %.2f\n", ret_x, ret_y)
+
+	ret_x, ret_y = count_pos2(float64(a), x1, y1, dist)
+	fmt.Printf("%.2f, %.2f\n", ret_x, ret_y)	
 }
 
