@@ -55,6 +55,18 @@ func count_pos2(a float64, x1, y1, dist float64) (float64, float64) {
 	return ret_x, ret_y
 }
 
+func count_pos3(a float64, x1, y1, dist float64) (float64, float64) {
+	a2 := -1.0 / a
+	b := y1 - a2 * x1
+
+	//y=ax y=a2x+b
+	//ax-a2x=b  (a-a2)x=b x=b/(a-a2)
+	var ret_x, ret_y float64
+	ret_x = b / (a - a2)
+	ret_y = a * ret_x
+	return ret_x, ret_y
+}
+
 //line: y = ax
 //point: x1, y1
 func main() {
@@ -77,6 +89,10 @@ func main() {
 	fmt.Printf("%.2f, %.2f\n", ret_x, ret_y)
 
 	ret_x, ret_y = count_pos2(float64(a), x1, y1, dist)
+	fmt.Printf("%.2f, %.2f\n", ret_x, ret_y)
+
+	ret_x, ret_y = count_pos3(float64(a), x1, y1, dist)
 	fmt.Printf("%.2f, %.2f\n", ret_x, ret_y)	
+	
 }
 
