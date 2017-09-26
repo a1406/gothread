@@ -12,17 +12,19 @@ func count_area(n uint) float64 {
 //	if n_line == 3 {
 //		return math.Sqrt(1 - 0.5 * 0.5) * 0.5 * 3
 	//	}
-	c1 := math.Sqrt(1 - 0.5 * 0.5)
+	c1 := math.Sqrt(1 - 0.5 * 0.5) * 2
 	h1 := 0.5
 //	var a, b float64
 	var s float64 = math.Sqrt(1 - 0.5 * 0.5) * 0.5 * 3
+	var n_add float64 = 3
 	for i := uint(1); i < n; i++ {
 		a := c1
 		b := 1 - h1
 		c1 = math.Sqrt(0.25*a*a + b*b)
-		h1 = math.Sqrt(b*b + c1*c1*0.25)
-		s = s + 1.5 * a * b
-		fmt.Printf("s = %.3f, a = %.3f b = %.3f, c1 = %.3f, h1 = %.3f\n", s, a, b, c1, h1)
+		h1 = math.Sqrt(1 - c1*c1*0.25)
+		s = s + 0.5 * a * b * n_add
+		n_add = n_add * 2
+		fmt.Printf("s = %.10f, a = %.10f b = %.10f, c1 = %.10f, h1 = %.10f, n_add = %.0f\n", s, a, b, c1, h1, n_add)
 	}
 	return s
 }
